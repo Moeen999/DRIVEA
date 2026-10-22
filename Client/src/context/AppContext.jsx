@@ -98,28 +98,26 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const fetchDriveContent = useCallback(async () => {
-    async (folderId = currentFolderId, search = searchQuery, sort = sortBy) => {
-      if (!user) return;
-      setIsDriveLoading(true);
-      try {
-        const parentParam = folderId || "null";
-        const [folderRes, filesRes, detailRes] = await Promise.all([
-          api.get("/api/folders", { params: { parent_id: parentParam } }),
-          api.get("/api/files", {
-            params: { folder_id: parentParam, search, sort },
-          }),
-          folderId ? api.get(`/api/folders/${folderId}`) : null,
-        ]);
-        setFolders(folderRes.data.folders);
-        setFiles(filesRes.data.files);
-        setBreadcrumbs(detailRes?.data?.breadcrumbs || ROOT_BREADCRUMB);
-      } catch (error) {
-        toast.error("Failed to fetch drive data");
-      } finally {
-        setIsDriveLoading(false);
-      }
-    };
+  const fetchDriveContent = useCallback(async (folderId = currentFolderId, search = searchQuery, sort = sortBy) => {
+    if (!user) return;
+    setIsDriveLoading(true);
+    try {
+      const parentParam = folderId || "null";
+      const [folderRes, filesRes, detailRes] = await Promise.all([
+        api.get("/api/folders", { params: { parent_id: parentParam } }),
+        api.get("/api/files", {
+          params: { folder_id: parentParam, search, sort },
+        }),
+        folderId ? api.get(`/api/folders/${folderId}`) : null,
+      ]);
+      setFolders(folderRes.data.folders);
+      setFiles(filesRes.data.files);
+      setBreadcrumbs(detailRes?.data?.breadcrumbs || ROOT_BREADCRUMB);
+    } catch (error) {
+      toast.error("Failed to fetch drive data");
+    } finally {
+      setIsDriveLoading(false);
+    }
   }, [user, currentFolderId, searchQuery, sortBy]);
 
   const value = {
