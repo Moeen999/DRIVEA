@@ -13,10 +13,11 @@ import {} from "react-router-dom";
 import { Dropdown, DropdownItem } from "../ui/Dropdown";
 import { ProgressBar } from "../ui/ProgressBar";
 import { formatBytes } from "../../assets/assets";
+import { useDrive } from "../../hooks/useDrive";
 
 const Sidebar = ({ onCreateFolderClick, isMobileOpen, setIsMobileOpen }) => {
   const { user, currentFolderId } = useAppContext();
-  const isUploading = false;
+  const { isUploading, uploadFiles } = useDrive();
   const location = useLocation();
   const fileInputRef = useRef(null);
 
@@ -26,6 +27,13 @@ const Sidebar = ({ onCreateFolderClick, isMobileOpen, setIsMobileOpen }) => {
     100,
     Math.round((storage_used / storage_limit) * 100),
   );
+
+  const handleFileSelect = (e)=>{
+    if(e.target.files && e.target.files.length > 0){
+        uploadFiles(e.target.files,currentFolderId)
+        e.target.value = ""
+    }
+  }
 
   const navItems = [
     { label: "My Drive", path: "/", icon: HardDriveIcon },
@@ -63,7 +71,7 @@ const Sidebar = ({ onCreateFolderClick, isMobileOpen, setIsMobileOpen }) => {
 
         {/* Upload CTA Dropdown */}
         <div className="p-4">
-          <input type="file" className="hidden" ref={fileInputRef} />
+          <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
           <Dropdown
             trigger={
               <button
